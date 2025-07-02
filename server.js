@@ -62,7 +62,7 @@ const upload = multer({ storage });
 app.post('/attendance', upload.single('selfie'), async (req, res) => {
   try {
     const selfieUrl = req.file
-      ? `http://${HOST}:${PORT}/uploads/${req.file.filename}`
+      ? `${HOST}/uploads/${req.file.filename}`
       : '';
 
     const {
