@@ -118,5 +118,5 @@ app.get('/offices', async (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running at http://${HOST}:${PORT}`);
+  console.log(`Server running at ${HOST}:${PORT}`);
 });
