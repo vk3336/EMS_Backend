@@ -7,10 +7,11 @@ const path = require('path');
 
 const app = express();
 const PORT = 3000;
-const HOST = '192.168.19.253'; // Replace with your IP
+const HOST = '192.168.50.219'; // Replace with your IP
 
-// MongoDB connection mongodb+srv://yashkharva506:Sufalam%402233@cluster0.j6nogwi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/EMS
-mongoose.connect('mongodb://127.0.0.1:27017/EMS', {
+//mongodb+srv://yashkharva506:Sufalam%402233@cluster0.j6nogwi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/EMS
+
+mongoose.connect('mongodb://127.0.0.1:27017/EMS', { 
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.log("MongoDB connected"))
