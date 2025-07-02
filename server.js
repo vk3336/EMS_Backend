@@ -18,6 +18,18 @@ mongoose.connect(process.env.MONGODB_URL, {
 .catch(err => console.error("MongoDB connection error:", err));
 
 // Schemas
+// const AttendanceSchema = new mongoose.Schema({
+//   employee: String,
+//   type: String,
+//   date: String,
+//   time: String,
+//   latitude: Number,
+//   longitude: Number,
+//   location: String,
+//   selfieUrl: String
+// });
+// const Attendance = mongoose.model('AttendenceData', AttendanceSchema);
+
 const AttendanceSchema = new mongoose.Schema({
   employee: String,
   type: String,
@@ -26,9 +38,11 @@ const AttendanceSchema = new mongoose.Schema({
   latitude: Number,
   longitude: Number,
   location: String,
-  selfieUrl: String
+  selfieUrl: String,
+  office: String // <-- added
 });
 const Attendance = mongoose.model('AttendenceData', AttendanceSchema);
+
 
 const EmployeeSchema = new mongoose.Schema({
   name: String
