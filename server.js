@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const mongoose = require('mongoose');
@@ -6,16 +7,15 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
-const HOST = '192.168.50.219'; // Replace with your IP
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
 
-//mongodb+srv://yashkharva506:Sufalam%402233@cluster0.j6nogwi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/EMS
-
-mongoose.connect('mongodb://127.0.0.1:27017/EMS', { 
+mongoose.connect(process.env.MONGODB_URL, { 
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
 
 // Schemas
 const AttendanceSchema = new mongoose.Schema({
