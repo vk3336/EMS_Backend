@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
 
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URL, { 
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -18,18 +19,6 @@ mongoose.connect(process.env.MONGODB_URL, {
 .catch(err => console.error("MongoDB connection error:", err));
 
 // Schemas
-// const AttendanceSchema = new mongoose.Schema({
-//   employee: String,
-//   type: String,
-//   date: String,
-//   time: String,
-//   latitude: Number,
-//   longitude: Number,
-//   location: String,
-//   selfieUrl: String
-// });
-// const Attendance = mongoose.model('AttendenceData', AttendanceSchema);
-
 const AttendanceSchema = new mongoose.Schema({
   employee: String,
   type: String,
@@ -39,17 +28,15 @@ const AttendanceSchema = new mongoose.Schema({
   longitude: Number,
   location: String,
   selfieUrl: String,
-  office: String // <-- added
+  office: String
 });
 const Attendance = mongoose.model('AttendenceData', AttendanceSchema);
-
 
 const EmployeeSchema = new mongoose.Schema({
   name: String
 });
 const Employee = mongoose.model('Employee', EmployeeSchema);
 
-// ✅ Office Schema
 const OfficeSchema = new mongoose.Schema({
   officename: String,
   latitude: Number,
@@ -72,11 +59,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ✅ Attendance Submission
+// Attendance Submission
 app.post('/attendance', upload.single('selfie'), async (req, res) => {
   try {
+    // Build selfie URL using request protocol and host
     const selfieUrl = req.file
-      ? `${HOST}/uploads/${req.file.filename}`
+      ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
       : '';
 
     const {
@@ -86,7 +74,8 @@ app.post('/attendance', upload.single('selfie'), async (req, res) => {
       time,
       latitude,
       longitude,
-      location
+      location,
+      office // <-- added
     } = req.body;
 
     const attendance = new Attendance({
@@ -97,7 +86,8 @@ app.post('/attendance', upload.single('selfie'), async (req, res) => {
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
       location,
-      selfieUrl
+      selfieUrl,
+      office
     });
 
     await attendance.save();
@@ -108,7 +98,36 @@ app.post('/attendance', upload.single('selfie'), async (req, res) => {
   }
 });
 
-// ✅ Get All Employees
+// Get Attendance Details (for Dashboard)
+app.get('/attendance', async (req, res) => {
+  try {
+    const { employee, date } = req.query;
+    // Find attendance records by employee and date
+    const query = {};
+    if (employee) query.employee = employee;
+    if (date) query.date = date;
+
+    const records = await Attendance.find(query);
+
+    // Format response to match Android expectations
+    const result = records.map(r => ({
+      employee: r.employee,
+      type: r.type,
+      date: r.date,
+      time: r.time,
+      location: r.location,
+      office: r.office || "",
+      selfie: r.selfieUrl || ""
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error in GET /attendance:", error);
+    res.status(500).json({ error: "Failed to fetch attendance details" });
+  }
+});
+
+// Get All Employees
 app.get('/employees', async (req, res) => {
   try {
     const employees = await Employee.find({}, 'name');
@@ -119,7 +138,7 @@ app.get('/employees', async (req, res) => {
   }
 });
 
-// ✅ Get All Offices
+// Get All Offices
 app.get('/offices', async (req, res) => {
   try {
     const offices = await Office.find({});
@@ -132,5 +151,5 @@ app.get('/offices', async (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running at ${HOST}`);
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });
